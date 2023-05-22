@@ -18,7 +18,7 @@ int main(int argc, string argv[])
 	string command_line_input = argv[1];
 
 	// Check if command line argument is a number or has alphabetic letters
-	if(string_is_number(command_line_input))
+	if(!string_is_number(command_line_input))
 	{
 		printf("Error: wordsize must be either 5, 6, 7, or 8");
 		return 1;
@@ -48,11 +48,14 @@ int main(int argc, string argv[])
 	// Print informtaion
 }
 
+// Check if the string contains other characters then digits; if so return false
 bool string_is_number(string text)
 {
+	// Iterate through the string
 	for(int char_index = 0, string_length = strlen(text); char_index < string_length; char_index++)
 	{
-		if(isalpha(text[char_index]))
+		// Check if character is not digit (0,1,2....) 
+		if(!isdigit(text[char_index]))
 		{
 			return false;
 		}
@@ -61,6 +64,7 @@ bool string_is_number(string text)
 	return true;
 }
 
+// Convert string number to integer
 int string_to_int(string number_text)
 {
 	int number_int = 0;
