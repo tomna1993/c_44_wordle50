@@ -9,6 +9,7 @@
 
 bool string_is_number(string text);
 int string_to_int(string number_text);
+string get_guess(int word_length);
 
 int main(int argc, string argv[])
 {
@@ -62,6 +63,7 @@ int main(int argc, string argv[])
 	// Select the secret word randomly
 	srand(time(NULL));
 
+	// Chose randomly a secret word
 	string secret_word = word_list[rand() % LIST_SIZE];
 
 	printf("%s\n", secret_word);
@@ -69,6 +71,7 @@ int main(int argc, string argv[])
 	// Start the game's main loop
 
 	// Get a guess from user as string; get_guess()
+	string user_guess_word = get_guess(wordsize);
 
 	// Compare the guessed word with the secret word
 
@@ -108,4 +111,49 @@ int string_to_int(string number_text)
 	}
 	
 	return number_int;
+}
+
+// Get string from user
+string get_guess(int word_length)
+{
+	string user_guess;
+
+	bool correct_user_input;	
+
+	do
+	{
+		// If user input is correct it stays true; otherwise change to false and ask for new user input
+		correct_user_input = true;
+
+		// Get user input as string
+		user_guess = get_string("Input a %i-letter word: ", word_length);
+
+		// Save the length of user input
+		int string_length = strlen(user_guess); 
+
+		// Check if user's word is same length as the secret word
+		if (string_length != word_length)
+		{
+			correct_user_input = false;
+			continue;
+		}
+		
+		// Iterate through user input characters
+		for(int char_index = 0; char_index < string_length; char_index++)
+		{
+			// Change any uppercase letter to lowercase
+			user_guess[char_index] = tolower(user_guess[char_index]);
+
+			// If character is not alphabetic ask for a new word (user input)	
+			if(!isalpha(user_guess[char_index]))
+			{
+				correct_user_input = false;	
+				break;
+			}
+		}
+
+	// If user's word correct leave the loop
+	} while (correct_user_input == false);
+
+	return user_guess;
 }
