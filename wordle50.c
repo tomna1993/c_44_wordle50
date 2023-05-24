@@ -31,6 +31,9 @@ void print_word(string user_word, int word_length, int score[], int number_of_gu
 
 int main(int argc, string argv[])
 {
+	// Welcome message
+	printf(GREEN "This is WORDLE50" RESET "\n");
+
 	// Check if user gave command line argument; if not print error message
 	if(argc != 2)
 	{
@@ -83,7 +86,8 @@ int main(int argc, string argv[])
 
 	string secret_word = word_list[rand() % LIST_SIZE];
 
-	printf("%s\n", secret_word);
+	// Debug randomly selected word
+	// printf("%s\n", secret_word);
 
 	//-----------------------------------------------------------------
 	// Start the game's main loop
