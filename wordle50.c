@@ -173,28 +173,37 @@ string get_guess(int word_length)
 	return user_guess;
 }
 
+// Check if the gessed and secret words are matching, if they don't match check which letters are in the secret word and add score to them
 int check_word(string guess_word, string secret_word, int word_length, int letter_status[])
 {
 	int score_sum = 0;
 
-	// Check if some of the letters are matching in correct place
+	// Check if there are letters matching and in the same place in each word
 	for(int i = 0; i < word_length; i++)
 	{
+		// Iterate through each word letter by letter and compare the letters
 		if(guess_word[i] == secret_word[i])
 		{
+			// The letter is same in the guess and secret word and in the same place
+			// EXACT = 2
 			letter_status[i] = EXACT;
 		}
 
+		// Calculate score
 		score_sum += letter_status[i];
 	}
 
-	if(score_sum == (word_length * 2))
+	// If the guess and secret words are same, the score should be word_lengt * EXACT
+	// f.e. word_length = 5; EXACT = 2; if score = 10 then words are matching
+	if(score_sum == (word_length * EXACT))
 	{
 		return score_sum;
 	}
 
+	// Create an array to save which letter in the secret word was already checked once
 	int letter_close[word_length];
 
+	// Set all elements to 0
 	for(int i = 0; i < word_length; i++)
 	{
 		letter_close[i] = 0;
@@ -215,12 +224,12 @@ int check_word(string guess_word, string secret_word, int word_length, int lette
 			if(guess_word[i] == secret_word[j] && letter_close[j] == 0)
 			{
 				letter_status[i] = CLOSE;
-
+				// Add letter's score
 				score_sum += letter_status[i];
 
 				// Mark letter to be checked once
 				letter_close[j] = 1;
-
+				// Goto the next letter
 				break;
 			}
 		}
