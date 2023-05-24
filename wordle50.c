@@ -7,9 +7,14 @@
 
 #define LIST_SIZE 1000
 
+#define EXACT 2
+#define CLOSE 1
+#define WRONG 0
+
 bool string_is_number(string text);
 int string_to_int(string number_text);
 string get_guess(int word_length);
+int check_word(string word1, string word2, int word_length, int score[]);
 
 int main(int argc, string argv[])
 {
@@ -60,20 +65,30 @@ int main(int argc, string argv[])
 		fscanf(list_pointer, "%s", word_list[i]);
 	}
 
-	// Select the secret word randomly
+	// Chose randomly a secret word
 	srand(time(NULL));
 
-	// Chose randomly a secret word
 	string secret_word = word_list[rand() % LIST_SIZE];
 
 	printf("%s\n", secret_word);
 
 	// Start the game's main loop
-
+	
+	// Create array to save each letter's score
+	int status[wordsize];
+	// Set each element to 0
+	for(int i = 0; i < wordsize; i++)
+	{
+		status[i] = 0;
+	}
+	
 	// Get a guess from user as string; get_guess()
 	string user_guess_word = get_guess(wordsize);
 
 	// Compare the guessed word with the secret word
+	int score = check_word(user_guess_word, secret_word, wordsize, status);
+
+	printf("Score = %i\n", score);
 
 	// Print informtaion
 }
@@ -156,4 +171,60 @@ string get_guess(int word_length)
 	} while (correct_user_input == false);
 
 	return user_guess;
+}
+
+int check_word(string guess_word, string secret_word, int word_length, int letter_status[])
+{
+	int score_sum = 0;
+
+	// Check if some of the letters are matching in correct place
+	for(int i = 0; i < word_length; i++)
+	{
+		if(guess_word[i] == secret_word[i])
+		{
+			letter_status[i] = EXACT;
+		}
+
+		score_sum += letter_status[i];
+	}
+
+	if(score_sum == (word_length * 2))
+	{
+		return score_sum;
+	}
+
+	int letter_close[word_length];
+
+	for(int i = 0; i < word_length; i++)
+	{
+		letter_close[i] = 0;
+	}
+
+	// Check the not matching letters for CLOSE and WRONG scores
+	for(int i = 0; i < word_length; i++)
+	{
+		// If the letter in guessed word and secret word match check the next letter
+		if(letter_status[i] == 2)
+		{
+			continue;
+		}
+
+		// Check if guessed word's letters are in the secret word 
+		for(int j = 0; j < word_length; j++)
+		{
+			if(guess_word[i] == secret_word[j] && letter_close[j] == 0)
+			{
+				letter_status[i] = CLOSE;
+
+				score_sum += letter_status[i];
+
+				// Mark letter to be checked once
+				letter_close[j] = 1;
+
+				break;
+			}
+		}
+	}
+
+	return score_sum;
 }
