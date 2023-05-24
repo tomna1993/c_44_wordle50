@@ -5,16 +5,29 @@
 #include <string.h>
 #include <time.h>
 
+// Define the size of the lists in each list
 #define LIST_SIZE 1000
 
+// Define scores
 #define EXACT 2
 #define CLOSE 1
 #define WRONG 0
+
+// Define ANSI SRG parameters
+// \033[ - escape sequence
+// 38;2;⟨r⟩;⟨g⟩;⟨b⟩ m - Select RGB foreground color
+// 48;2;⟨r⟩;⟨g⟩;⟨b⟩ m - Select RGB background color
+#define GREEN "\033[38;2;255;255;255m\033[48;2;0;170;0m"
+#define YELLOW "\033[38;2;255;255;255m\033[48;2;255;255;0m"
+#define RED "\033[38;2;255;255;255m\033[48;2;255;0;0m"
+// Reset or normal; reset SRG settings to default
+#define RESET "\033[0m"
 
 bool string_is_number(string text);
 int string_to_int(string number_text);
 string get_guess(int word_length);
 int check_word(string word1, string word2, int word_length, int score[]);
+void print_word(string user_word, int word_length, int score[], int number_of_guess);
 
 int main(int argc, string argv[])
 {
@@ -35,7 +48,7 @@ int main(int argc, string argv[])
 	}
 
 	// Get command line argument and conver it to number
-	int wordsize = string_to_int(argv[1]);
+	const int wordsize = string_to_int(argv[1]);
 
 	if (wordsize < 5 || wordsize > 8)
 	{
@@ -72,25 +85,41 @@ int main(int argc, string argv[])
 
 	printf("%s\n", secret_word);
 
+	//-----------------------------------------------------------------
 	// Start the game's main loop
 	
 	// Create array to save each letter's score
 	int status[wordsize];
-	// Set each element to 0
-	for(int i = 0; i < wordsize; i++)
-	{
-		status[i] = 0;
-	}
 	
-	// Get a guess from user as string; get_guess()
-	string user_guess_word = get_guess(wordsize);
+	for(int game_length = 1; game_length <= 5; game_length++)
+	{
+		// Reset status before each round (each new guess)
+		for(int i = 0; i < wordsize; i++)
+		{
+			status[i] = 0;
+		}
+		
+		// Get a guess from user as string; get_guess()
+		string user_guess_word = get_guess(wordsize);
 
-	// Compare the guessed word with the secret word
-	int score = check_word(user_guess_word, secret_word, wordsize, status);
+		// Compare the guessed word with the secret word
+		int score = check_word(user_guess_word, secret_word, wordsize, status);
 
-	printf("Score = %i\n", score);
+		// If the guess and secret words are same, the score should be wordsize * EXACT
+		// f.e. wordsize = 5; EXACT = 2; if score = 10 then words are matching
+		if(score == wordsize * EXACT)
+		{
+			printf(GREEN "You Won!\n" RESET);
+			return 0;
+		}
 
-	// Print informtaion
+		// Else print out the word with color coded letters
+		print_word(user_guess_word, wordsize, status, game_length);
+	}
+
+	// Player hasn't guessed correctly, he lost the game 
+	printf(RED "Game Over!\n" RESET);
+	return 1;
 }
 
 // Check if the string contains other characters then digits; if so return false
@@ -236,4 +265,33 @@ int check_word(string guess_word, string secret_word, int word_length, int lette
 	}
 
 	return score_sum;
+}
+
+// Print the guessed word with coloring the letters by score
+void print_word(string user_word, int word_length, int score[], int number_of_guess)
+{
+	printf("Guess %i: ", number_of_guess);
+
+	for(int i = 0; i < word_length; i++)
+	{
+		switch(score[i])
+		{
+			// Print letter which is in the secret word but in wrong place
+			case 1:
+				printf(YELLOW "%c" RESET, user_word[i]);
+				break;
+
+			// Print letter which is in the secret word and in the correct place
+			case 2:
+				printf(GREEN "%c" RESET, user_word[i]);
+				break;
+
+			// Print letter which is not in the secret word
+			case 0:
+			default:
+				printf(RED "%c" RESET, user_word[i]);
+				break;
+		}
+	}
+	printf("\n");
 }
